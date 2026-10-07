@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# extraction du menu (régénérable)
+/images-originales
+/menu-brut.json

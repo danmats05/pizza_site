@@ -1,26 +1,280 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ───────── Design system Pizza Time ───────── */
+@theme {
+  /* Couleurs (brief, section 4) */
+  --color-tomate: #d7282f;
+  --color-tomate-fonce: #a81c22;
+  --color-basilic: #2f8f46;
+  --color-basilic-fonce: #23703a; /* fonds avec texte blanc : contraste AA */
+  --color-croute: #f4b63f;
+  --color-encre: #000000;
+  --color-pate: #fff3df;
+  --color-farine: #fffaf1; /* fond général, un cran plus clair que la pâte */
+  --color-charbon: #1d1818; /* barre du header */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Polices */
+  --font-display: var(--font-ultra), Georgia, serif;
+  --font-sans: var(--font-bighorn), system-ui, sans-serif;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  /* Ombres douces (aucune ombre dure, aucun contour noir : style moderne épuré) */
+  --shadow-douce-sm: 0 1px 2px rgb(29 24 24 / 0.06), 0 2px 8px rgb(29 24 24 / 0.06);
+  --shadow-douce: 0 2px 6px rgb(29 24 24 / 0.06), 0 12px 32px rgb(29 24 24 / 0.08);
+  --shadow-douce-lg: 0 4px 12px rgb(29 24 24 / 0.08), 0 24px 60px rgb(29 24 24 / 0.14);
+
+  /* Rayons */
+  --radius-bouton: 14px;
+  --radius-carte: 24px;
+  --radius-bloc: 32px;
+
+  /* Hauteur réservée au header flottant, marge comprise (sticky des onglets, ancres) */
+  --spacing-header: 5rem;
+
+  --animate-defile: defile 40s linear infinite;
+  @keyframes apparait {
+    from {
+      opacity: 0;
+      translate: 0 10px;
+    }
+  }
+  @keyframes defile {
+    to {
+      transform: translateX(-50%);
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Essai des polices du texte courant (temporaire) */
+html[data-police="tommy"] {
+  --font-sans: var(--font-tommy), system-ui, sans-serif;
+}
+html[data-police="figtree"] {
+  --font-sans: var(--font-figtree), system-ui, sans-serif;
+}
+
+/*
+ * Fondus adoucis : 14 paliers suivant une courbe smoothstep au lieu d'un dégradé linéaire (aucune « marche » visible).
+ * fondu-sous-onglets : fond de la barre d'onglets collée, uni derrière la pilule puis fondu sur 3,5 rem.
+ */
+@utility fondu-sous-onglets {
+  background-image: linear-gradient(
+    to bottom,
+    var(--color-farine) calc(100% - 3.5rem),
+    color-mix(in oklab, var(--color-farine) 100.0%, transparent) calc((100% - 3.5rem) + (100% - (100% - 3.5rem)) * 0.000),
+    color-mix(in oklab, var(--color-farine) 98.3%, transparent) calc((100% - 3.5rem) + (100% - (100% - 3.5rem)) * 0.077),
+    color-mix(in oklab, var(--color-farine) 93.6%, transparent) calc((100% - 3.5rem) + (100% - (100% - 3.5rem)) * 0.154),
+    color-mix(in oklab, var(--color-farine) 86.5%, transparent) calc((100% - 3.5rem) + (100% - (100% - 3.5rem)) * 0.231),
+    color-mix(in oklab, var(--color-farine) 77.4%, transparent) calc((100% - 3.5rem) + (100% - (100% - 3.5rem)) * 0.308),
+    color-mix(in oklab, var(--color-farine) 67.0%, transparent) calc((100% - 3.5rem) + (100% - (100% - 3.5rem)) * 0.385),
+    color-mix(in oklab, var(--color-farine) 55.8%, transparent) calc((100% - 3.5rem) + (100% - (100% - 3.5rem)) * 0.462),
+    color-mix(in oklab, var(--color-farine) 44.2%, transparent) calc((100% - 3.5rem) + (100% - (100% - 3.5rem)) * 0.538),
+    color-mix(in oklab, var(--color-farine) 33.0%, transparent) calc((100% - 3.5rem) + (100% - (100% - 3.5rem)) * 0.615),
+    color-mix(in oklab, var(--color-farine) 22.6%, transparent) calc((100% - 3.5rem) + (100% - (100% - 3.5rem)) * 0.692),
+    color-mix(in oklab, var(--color-farine) 13.5%, transparent) calc((100% - 3.5rem) + (100% - (100% - 3.5rem)) * 0.769),
+    color-mix(in oklab, var(--color-farine) 6.4%, transparent) calc((100% - 3.5rem) + (100% - (100% - 3.5rem)) * 0.846),
+    color-mix(in oklab, var(--color-farine) 1.7%, transparent) calc((100% - 3.5rem) + (100% - (100% - 3.5rem)) * 0.923),
+    color-mix(in oklab, var(--color-farine) 0.0%, transparent) calc((100% - 3.5rem) + (100% - (100% - 3.5rem)) * 1.000)
+  );
+}
+
+
+/* Couleur de fond du hero, mise à jour par le carrousel (sert au dégradé sous le hero). */
+:root {
+  --fond-hero: #f4b63f;
+}
+
+@layer base {
+  html {
+    background: var(--color-farine);
+    color: var(--color-encre);
+    scroll-padding-top: calc(var(--spacing-header) + 4.5rem);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    font-synthesis: none; /* Bighorn n'a qu'une graisse : pas de faux gras */
+    background: var(--color-farine);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-croute);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: var(--color-croute);
+    color: var(--color-encre);
+  }
+}
+
+@layer utilities {
+  /* Retour discret au clic */
+  .enfonce {
+    transition:
+      transform 0.15s ease,
+      background-color 0.2s ease,
+      color 0.2s ease;
+  }
+  .enfonce:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  .titre {
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+  }
+
+  .sans-scrollbar {
+    scrollbar-width: none;
+  }
+  .sans-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /*
+   * Survol « remplissage » (repris d'elengi_fresh, variante qui part de la gauche) : la pastille colorée
+   * s'agrandit jusqu'à remplir le bouton. Un calque de sa couleur, découpé en cercle (clip-path), part de la
+   * pastille à sa taille exacte puis s'ouvre ; le rayon final est relatif au bouton, donc l'animation
+   * occupe toute sa durée quelle que soit la largeur. Le calque passe sous le contenu (isolation).
+   * --flow-remplissage : couleur ; --flow-x : centre de la pastille ; --flow-r : rayon de la pastille ;
+   * --flow-fin : rayon final (120 % suffit pour un bouton court, plus pour une ligne large).
+   */
+  .flow-gauche {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    transition:
+      scale 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+      color 0.3s ease;
+  }
+  .flow-gauche::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--flow-remplissage, var(--color-pate));
+    clip-path: circle(var(--flow-r, 16px) at var(--flow-x, 22px) 50%);
+    pointer-events: none;
+    transition: clip-path 0.55s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  .flow-gauche:hover::before,
+  .flow-gauche:focus-visible::before {
+    clip-path: circle(var(--flow-fin, 120%) at var(--flow-x, 22px) 50%);
+  }
+  .flow-gauche:active {
+    scale: 0.95;
+  }
+
+  /*
+   * Survol « origine » : un disque part du point où le curseur entre dans le bouton (du centre au clavier)
+   * et grandit jusqu'à le couvrir ; le texte change de couleur. Position et diamètre posés par
+   * components/OrigineBoutons.tsx (--ox, --oy, --od). Couleurs : --origine-fond, --origine-texte.
+   */
+  .origine {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    transition:
+      color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+      scale 0.2s ease;
+  }
+  .origine::before {
+    content: "";
+    position: absolute;
+    left: var(--ox, 50%);
+    top: var(--oy, 50%);
+    z-index: -1;
+    width: var(--od, 300%);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--origine-fond, var(--color-charbon));
+    translate: -50% -50%;
+    scale: 0;
+    pointer-events: none;
+    transition: scale 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .origine:hover::before,
+  .origine:focus-visible::before {
+    scale: 1;
+  }
+  .origine:hover,
+  .origine:focus-visible {
+    color: var(--origine-texte, #fff);
+  }
+  .origine:active:not(:disabled) {
+    scale: 0.985;
+  }
+  .origine:disabled::before {
+    display: none;
+  }
+
+  /*
+   * Apparition en cascade : chaque enfant monte légèrement en fondu, l'un après l'autre (45 ms d'écart).
+   * Se joue à l'affichage de l'élément (ajout au panier, ouverture d'une fiche…), pas aux simples mises à jour.
+   * --d : délai de départ du groupe.
+   */
+  .cascade > * {
+    animation: apparait 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--d, 0ms) + min(var(--i, 11), 11) * 45ms);
+  }
+  .cascade > :nth-child(1) {
+    --i: 0;
+  }
+  .cascade > :nth-child(2) {
+    --i: 1;
+  }
+  .cascade > :nth-child(3) {
+    --i: 2;
+  }
+  .cascade > :nth-child(4) {
+    --i: 3;
+  }
+  .cascade > :nth-child(5) {
+    --i: 4;
+  }
+  .cascade > :nth-child(6) {
+    --i: 5;
+  }
+  .cascade > :nth-child(7) {
+    --i: 6;
+  }
+  .cascade > :nth-child(8) {
+    --i: 7;
+  }
+  .cascade > :nth-child(9) {
+    --i: 8;
+  }
+  .cascade > :nth-child(10) {
+    --i: 9;
+  }
+  .cascade > :nth-child(11) {
+    --i: 10;
+  }
+  .cascade > :nth-child(12) {
+    --i: 11;
+  }
+
+  .marge-securite-bas {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Entrée du hero : éléments masqués jusqu'à ce que GSAP prenne la main (classe posée par un script
+   dans <head>, seulement si le mouvement n'est pas réduit, retirée au plus tard après 4 s). */
+.intro [data-intro] {
+  visibility: hidden;
 }
